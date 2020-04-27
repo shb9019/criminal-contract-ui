@@ -1,0 +1,27 @@
+{
+  "name": "svelte-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "dev": "webpack-dev-server --content-base public"
+  },
+  "devDependencies": {
+    "svelte": "^3.21.0",
+    "cross-env": "^5.2.0",
+    "css-loader": "^2.1.1",
+    "mini-css-extract-plugin": "^0.6.0",
+    "serve": "^11.0.0",
+    "style-loader": "^0.23.1",
+    "svelte-loader": "2.13.3",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.3.1"
+  },
+  "dependencies": {
+    "asn1.js": "^5.3.0",
+    "eth-sig-util": "^2.5.3",
+    "parse-asn1": "^5.1.5",
+    "web3": "^1.2.7",
+    "ethereumjs-util": "latest"
+  }
+}
