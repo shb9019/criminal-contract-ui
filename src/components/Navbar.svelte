@@ -1,5 +1,9 @@
 <script>
-    import { publicAddress } from '../stores';
+    import { publicAddress, isCreateBountyOpen } from '../stores';
+
+    const toggleCreateBounty = () => {
+        isCreateBountyOpen.update(val => !val);
+    }
 </script>
 
 <div class="navbar-wrapper">
@@ -7,11 +11,11 @@
         <div class="col-sm-2 app-name">
             <b>CRIMINAL CONTRACT</b>
         </div>
-        <div class="col-sm-3"></div>
-        <div class="col-sm-2 menu-field">
-            Submit Bounty
+        <div class="col-sm-5"></div>
+        <div class="col-sm-1 menu-field" on:click={toggleCreateBounty}>
+            Submit
         </div>
-        <div class="col-sm-2 menu-field">
+        <div class="col-sm-1 menu-field">
             Bounties
         </div>
         <div class="col-sm-3 address">{$publicAddress.slice(0,20) + "..."}</div>
@@ -50,6 +54,11 @@
         color: #609398;
         padding-left: 30px;
         cursor: pointer;
+        transition: 0.1s font-size;
+    }
+
+    .menu-field:hover {
+        font-size: 18px;
     }
 
     .address {
