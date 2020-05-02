@@ -9,6 +9,7 @@
     {#if $isCreateBountyOpen}
         <CreateBounty/>
     {/if}
+    <div class="container bounties-container"/>
 </div>
 
 <style>
@@ -17,11 +18,18 @@
         top: 0;
         left: 0;
         margin: 0;
+        background-color: #3c3f41;
     }
 
     .blur-bg {
         filter: blur(4px);
         -webkit-filter: blur(4px);
-        transform: scale(1.5);
+    }
+
+    .bounties-container {
+        display: block;
+        top: 60px;
+        z-index: -1;
+        min-height: calc(100vh - 60px);
     }
 </style>

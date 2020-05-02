@@ -28,6 +28,7 @@
         height: 60px;
         margin: 0;
         background-color: #2f2f2f;
+        z-index: 100;
     }
 
     .app-name {

@@ -114,6 +114,8 @@
     .login-container {
         max-width: 800px;
         min-width: 700px;
+        z-index: 100;
+        box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.9);
     }
 
     .wrapper {
@@ -122,7 +124,6 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        z-index: 2;
     }
 
     .login-row .col {
@@ -167,7 +168,7 @@
         min-width: 300px;
         min-height: 60px;
         max-height: 60px;
-        background-color: #F4852A;
+        background-color: #2b2b2b;
         color: white;
         font-weight: 500;
         font-size: 20px;
@@ -180,6 +181,6 @@
     }
 
     .hvr-sweep-to-right:before {
-        background: #2b2b2b;
+        background-color: #F4852A;
     }
 </style>

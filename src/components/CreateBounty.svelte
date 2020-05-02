@@ -1,32 +1,60 @@
 <script>
-    import { isCreateBountyOpen } from '../stores';
-    import { onMount } from 'svelte';
+    import {isCreateBountyOpen} from '../stores';
+    import {onMount} from 'svelte';
+    import RadioButton from "./RadioButton.svelte";
 
     const closeCreateBounty = () => {
         isCreateBountyOpen.set(false);
     };
 
-    let fileMessage = "No file uploaded";
-    let realFileBtn;
+    // TODO: Make file input a separate component
+    let plainTextFileMessage = "No file uploaded";
+    let plainTextFileBtn;
+    let cipherTextFileMessage = "No file uploaded";
+    let cipherTextFileBtn;
 
     onMount(() => {
-        realFileBtn = document.getElementById("real-file");
+        plainTextFileBtn = document.getElementById("plain-text-file");
+        cipherTextFileBtn = document.getElementById("cipher-text-file");
 
-        realFileBtn.addEventListener("change", function() {
-            if (realFileBtn.value) {
-                fileMessage = realFileBtn.value.match(
+        plainTextFileBtn.addEventListener("change", function () {
+            if (plainTextFileBtn.value) {
+                plainTextFileMessage = plainTextFileBtn.value.match(
                         /[\/\\]([\w\d\s\.\-\(\)]+)$/
                 )[1];
             } else {
-                fileMessage = "No file chosen, yet.";
+                plainTextFileMessage = "No file uploaded";
+            }
+        });
+
+        cipherTextFileBtn.addEventListener("change", function () {
+            if (cipherTextFileBtn.value) {
+                cipherTextFileMessage = cipherTextFileBtn.value.match(
+                        /[\/\\]([\w\d\s\.\-\(\)]+)$/
+                )[1];
+            } else {
+                cipherTextFileMessage = "No file uploaded";
             }
         });
     });
 
 
-    const handleFileUpload = () => {
-        console.log(realFileBtn);
-        realFileBtn.click();
+    const handlePlainTextFileUpload = () => {
+        plainTextFileBtn.click();
+    };
+
+    const handleCipherTextFileUpload = () => {
+        cipherTextFileBtn.click();
+    };
+
+    const completeTransaction = () => {
+        // TODO: Post transaction formalities
+        closeCreateBounty();
+    };
+
+    const payBounty = () => {
+        // TODO: Contact the Smart Contract to make the payment
+        completeTransaction();
     };
 </script>
 
@@ -55,9 +83,30 @@
                         <p>Upload Plain Text</p>
                     </div>
                     <div class="row input-field">
-                        <input type="file" id="real-file" hidden="hidden" />
-                        <button type="button" class="file-upload" on:click={handleFileUpload}>Upload File</button>
-                        <span class="file-name-text">{fileMessage}</span>
+                        <input type="file" id="plain-text-file" hidden="hidden" accept=".txt" />
+                        <button type="button" class="file-upload" on:click={handlePlainTextFileUpload}><b>Upload File</b></button>
+                        <span class="file-name-text">{plainTextFileMessage}</span>
+                    </div>
+                    <br/>
+                    <div class="row input-label">
+                        <p>Upload Cipher Text</p>
+                    </div>
+                    <div class="row input-field">
+                        <input type="file" id="cipher-text-file" hidden="hidden" accept=".txt" />
+                        <button type="button" class="file-upload" on:click={handleCipherTextFileUpload}><b>Upload File</b></button>
+                        <span class="file-name-text">{cipherTextFileMessage}</span>
+                    </div>
+                    <br/>
+                    <div class="row input-label">
+                        <p>Select Encryption Type</p>
+                    </div>
+                    <div class="row input-field">
+                        <RadioButton name="enc-type" options={["AES-128", "Caesar", "Triple-DES"]}/>
+                    </div>
+                    <div class="row pay-button">
+                        <div class={"form-submit-button hvr-sweep-to-right"} on:click={payBounty}>
+                            Proceed to Pay
+                        </div>
                     </div>
                 </div>
             </div>
@@ -146,5 +195,32 @@
         color: #a9b260;
         font-family: 'Roboto Mono', monospace;
         font-size: 18px;
+    }
+
+    .form-submit-button {
+        min-width: 300px;
+        min-height: 60px;
+        max-height: 60px;
+        background-color: #087F8C;
+        color: white;
+        font-weight: 500;
+        font-size: 20px;
+        font-family: 'Source Code Pro', monospace;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .hvr-sweep-to-right:before {
+        background-color: #FAA916;
+    }
+
+    .pay-button {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
     }
 </style>
