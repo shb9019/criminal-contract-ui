@@ -32,7 +32,12 @@
     .bounties-container {
         display: block;
         top: 60px;
-        z-index: -1;
+        z-index: 0;
+        position: absolute;
+        background-color: #3c3f41;
+        width: 100vw;
+        max-width: 100%;
+        padding: 0 80px;
         min-height: calc(100vh - 60px);
     }
 </style>

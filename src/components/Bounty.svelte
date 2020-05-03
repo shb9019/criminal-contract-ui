@@ -31,6 +31,7 @@
 
 <style>
     .bounty-row {
+        position: relative;
         width: 100%;
         min-height: 200px;
         margin: 30px 0;
