@@ -11,12 +11,9 @@
         <div class="col-sm-2 app-name">
             <b>CRIMINAL CONTRACT</b>
         </div>
-        <div class="col-sm-5"></div>
+        <div class="col-sm-6"></div>
         <div class="col-sm-1 menu-field" on:click={toggleCreateBounty}>
             Submit
-        </div>
-        <div class="col-sm-1 menu-field">
-            Bounties
         </div>
         <div class="col-sm-3 address">{$publicAddress.slice(0,20) + "..."}</div>
     </div>
@@ -29,6 +26,10 @@
         margin: 0;
         background-color: #2f2f2f;
         z-index: 100;
+    }
+
+    .navbar-wrapper .row {
+        margin: 0;
     }
 
     .app-name {

@@ -2,6 +2,7 @@
     import Navbar from './Navbar.svelte';
     import {isLoggedIn, isCreateBountyOpen} from '../stores';
     import CreateBounty from "./CreateBounty.svelte";
+    import BountyList from "./BountyList.svelte";
 </script>
 
 <div class={$isLoggedIn ? "wrapper" : "wrapper blur-bg"}>
@@ -9,12 +10,14 @@
     {#if $isCreateBountyOpen}
         <CreateBounty/>
     {/if}
-    <div class="container bounties-container"/>
+    <div class="container bounties-container">
+        <BountyList/>
+    </div>
 </div>
 
 <style>
     .wrapper {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         margin: 0;
