@@ -1,14 +1,14 @@
 <script>
     import { download } from '../utils';
     import {address0} from "../stores";
+
     export let contractor = "0xcafebabecafebabecafebabe";
     export let encType = "AES-128";
     export let cipherText = "";
     export let plainText = "";
     export let perpetrator = "";
     export let amount = 0;
-
-    $: console.log(perpetrator);
+    export let submit = () => {};
 </script>
 
 <div class="row bounty-row">
@@ -36,7 +36,7 @@
         </div>
         <div class="row submit-row">
             <div class="col-lg-4"></div>
-            <div class="col-lg-4 button-col submit-button">
+            <div class="col-lg-4 button-col submit-button" on:click={submit}>
                 <span>{perpetrator === address0 ? 'SUBMIT KEY' : 'BROKEN!'}</span>
             </div>
             <div class="col-lg-4"></div>
@@ -55,6 +55,7 @@
         margin: 30px 0;
         background-color: #2b2b2b;
         font-family: 'Roboto Mono', monospace;
+        box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
     }
 
     .contractor-row {
@@ -101,6 +102,7 @@
     .submit-row {
         padding-top: 50px;
         padding-bottom: 30px;
+        min-height: 50px;
     }
 
     .submit-button {

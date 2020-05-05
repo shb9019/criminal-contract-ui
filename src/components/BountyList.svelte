@@ -3,6 +3,7 @@
     import Web3 from "web3";
     import {contractAbi, contractAddress, publicAddress, isLoggedIn} from "../stores";
     import {getEncryptionName} from '../utils';
+    import SubmitProof from "./SubmitKey.svelte";
 
     let web3;
     let contract;
@@ -10,6 +11,7 @@
     let isLoggedInLocal;
     let bounties = [];
     let isLoading = false;
+    let submitKeyIndex = -1;
 
     const publicAddressUnsubscribe = publicAddress.subscribe(value => {
         publicAddressLocal = value;
@@ -63,30 +65,49 @@
         })
     };
 
-    $: if(isLoggedInLocal) {
+    const resetSubmitKey = () => {
+        submitKeyIndex = -1;
+    };
+
+    const setSubmitKey = (index) => {
+        submitKeyIndex = index;
+        console.log(submitKeyIndex);
+    };
+
+    const verifyProof = (proof) => {
+        const encType = bounties[submitKeyIndex].encType;
+        const cipherText = bounties[submitKeyIndex].cipherText;
+        const plainText = bounties[submitKeyIndex].plainText;
+        console.log(encType, cipherText, plainText, proof);
+        // TODO: Verify Proof by submitting to others
+    };
+
+    $: if (isLoggedInLocal) {
         try {
             initiateWeb3().then(initiateContract).then(subscribeEvents).then(populateBounties);
         } catch (err) {
-            console.log("Something went wrong!");
+            alert("Something went wrong!");
         }
     }
-
-    $: console.log(bounties.length);
 
 </script>
 
 {#if isLoading}
     <p class="loading"> <i class="fa fa-spinner fa-spin fa-fw"></i> Fetching Bounties...</p>
 {/if}
-{#each bounties as bounty}
+{#each bounties as bounty, i}
 <Bounty encType={getEncryptionName(bounty.encType)}
         cipherText={bounty.cipherText}
         plainText={bounty.plainText}
         contractor={bounty.contractor}
         perpetrator={bounty.perpetrator}
         amount={web3.utils.fromWei(bounty.amount)}
+        submit={() => setSubmitKey(i)}
 />
 {/each}
+{#if submitKeyIndex !== -1}
+    <SubmitProof close={resetSubmitKey} verifyProof={verifyProof}/>
+{/if}
 
 <style>
     .loading {
