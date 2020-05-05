@@ -30,16 +30,14 @@
                             encType: "0",
                             cipherText: data[publicKey].input_url,
                             plainText: "",
-                            contractor: publicKey,
+                            contractor: data[publicKey].public_key,
                             perpetrator: (!data[publicKey].proof.perp_public_key) ? address0 : data[publicKey].proof.perp_public_key,
                             amount: data[publicKey].reward,
                             proof: data[publicKey].proof
                         });
-                        console.log(publicKey, data[publicKey]);
                     }
                 }
 
-                console.log(bounties);
                 // Svelte does not update for array methods like push
                 bounties = bounties;
             });
@@ -48,14 +46,6 @@
         }
     };
 
-    const subscribeEvents = async () => {
-        contract.events.CreatedBounty((err, events) => {
-            bounties = [];
-            if (!err) {
-                populateBounties();
-            }
-        })
-    };
 
     const resetSubmitKey = () => {
         submitKeyIndex = -1;
@@ -83,10 +73,9 @@
         })
     };
 
-    const acceptKey = (index) => {
+    const acceptKey = (index, status = 1) => {
         const publicAddress = publicAddressLocal;
         const contractId = bounties[index].contractor;
-        const status = 1;
 
         fetch(`http://localhost:7777/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
             return response.json();
@@ -94,11 +83,16 @@
             console.log(data.message_data);
             console.log(data.message_data);
             if (data.message_data.public_key) {
-                alert('Money has been transferred!');
+                if (status === 1) alert('Money has been transferred!');
+                else alert('The key has been informed as being invalid!');
             } else {
                 alert('Something went wrong!');
             }
         })
+    };
+
+    const rejectKey = (index) => {
+        acceptKey(index, 0);
     };
 
     onMount(() => {
@@ -124,6 +118,7 @@
             proof={bounty.proof}
             index={i}
             accept={acceptKey}
+            reject={rejectKey}
     />
 {/each}
 {#if submitKeyIndex !== -1}

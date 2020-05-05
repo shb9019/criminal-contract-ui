@@ -10,11 +10,13 @@
     export let amount = 0;
     export let proof = {};
     export let index = 0;
-    export let submit = () => {};
-    export let accept = () => {};
+    export let submit = (index) => {};
+    export let accept = (index) => {};
+    export let reject = (index) => {};
 
     let isSubmittedProof = false;
     let isSolved = false;
+    let isInvalid = false;
     let keyUrl = "";
     let status = null;
     let publicAddressLocal;
@@ -31,6 +33,10 @@
         }
     };
 
+    const rejectKey = () => {
+        reject(index);
+    };
+
     $: for (let address in proof) {
         if (proof.hasOwnProperty(address)) {
             perpetrator = address;
@@ -42,6 +48,8 @@
 
     $: if (status === "1") {
         isSolved = true;
+    } else {
+        isInvalid = true;
     }
 
     $: isSubmittedProof = keyUrl !== "" && contractor === publicAddressLocal;
@@ -53,7 +61,9 @@
         <div class="row contractor-row">
             <div class="col-sm-10">
                 {#if isSolved}
-                        <p>Solved by {perpetrator}</p>
+                    <p>Solved by {perpetrator}</p>
+                {:else if isInvalid && perpetrator === publicAddressLocal}
+                    <p>Your proof and key have been marked as invalid</p>
                 {:else if !isSubmittedProof}
                     <p>Submitted by {contractor}</p>
                 {:else if !isSolved}
@@ -80,14 +90,23 @@
                 {/if}
             </div>
             <div class="col-lg-2"></div>
-            {#if !isSolved}
-                <div class={`col-lg-3 button-col submit-button`} on:click={submitAccept}>
-                    <span>{!isSubmittedProof ? 'SUBMIT KEY' : 'ACCEPT KEY'}</span>
+            {#if !isSolved && isSubmittedProof}
+                <div class={`col-lg-3 button-col`} on:click={rejectKey}>
+                    Reject Key
                 </div>
             {/if}
             <div class="col-lg-2"></div>
         </div>
-    </div>
+        {#if !isSolved}
+            <div class="row submit-row">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4 submit-button" on:click={submitAccept}>
+                    <span>{!isSubmittedProof ? 'SUBMIT KEY' : 'ACCEPT KEY'}</span>
+                </div>
+                <div class="col-lg-4"></div>
+            </div>
+        {/if}
+        </div>
     <div class={`col-md-3 enc-type-col`  + (isSubmittedProof ? ` proof-submitted` : ``) + (isSolved ? ` solved` : ``)}>
         <p>{encType}</p>
     </div>
@@ -112,6 +131,8 @@
     .button-col {
         min-height: 30px;
         background-color: white;
+        color: black;
+        padding: 10px 0;
     }
 
     .download-row {
@@ -159,6 +180,10 @@
         color: white;
         font-weight: 600;
         padding: 10px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
     }
 
     .submit-button:hover {

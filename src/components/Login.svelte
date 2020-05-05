@@ -1,80 +1,30 @@
 <script>
     import Web3 from 'web3';
-    import { recoverPersonalSignature } from 'eth-sig-util';
-    import { bufferToHex } from 'ethereumjs-util';
-    import { isLoggedIn, publicAddress } from '../stores.js';
+    import {recoverPersonalSignature} from 'eth-sig-util';
+    import {bufferToHex} from 'ethereumjs-util';
+    import {isLoggedIn, publicAddress} from '../stores.js';
 
     let web3 = undefined;
     let isLoading = false;
     let publicAddressLocal = undefined;
 
-    const initiateWeb3 = async () => {
-        if (!window.ethereum) {
-            throw new Error('Please install MetaMask first.');
-        }
-
-        if (!web3) {
-            try {
-                // Request account access if needed
-                await window.ethereum.enable();
-
-                // We don't know window.web3 version, so we use our own instance of Web3
-                // with the injected provider given by MetaMask
-                web3 = new Web3(window.ethereum);
-            } catch (error) {
-                throw new Error('You need to allow MetaMask.');
-            }
-        }
-    };
-
-    const getPublicAddress = async () => {
-        const coinbase = await web3.eth.getCoinbase();
-        if (!coinbase) {
-            throw new Error('Please activate MetaMask first.');
-        }
-
-        publicAddressLocal = coinbase.toLowerCase();
-    };
-
-    const handleSignMessage = async (nonce) => {
-        try {
-            const msg = `Sign your one-time nonce: ${nonce}`;
-            const signature = await web3.eth.personal.sign(
-                    `Sign your one-time nonce: ${nonce}`,
-                    publicAddressLocal,
-                    ''
-            );
-
-            return { publicAddressLocal, signature, msg };
-        } catch (err) {
-            throw new Error('You need to sign the message to be able to log in.');
-        }
-    };
-
-    const verifySignature = async (signature, msg) => {
-        const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'));
-        const address = recoverPersonalSignature({
-            data: msgBufferHex,
-            sig: signature,
-        });
-        if (address.toLowerCase() !== publicAddressLocal.toLowerCase()) {
-            throw new Error("Invalid Signature - Authentication failed");
-        }
-    };
-
     const handleLogin = async () => {
         try {
             isLoading = true;
-            await initiateWeb3();
-            await getPublicAddress();
-            const {signature, msg} = await handleSignMessage(100);
-            await verifySignature(signature, msg);
-            isLoggedIn.set(true);
-            publicAddress.set(publicAddressLocal);
+            fetch('http://localhost:7777/read_self_data', {
+                mode: 'cors'
+            }).then((response) => {
+                return response.json();
+            }).then((data) => {
+                console.log(data);
+                publicAddress.set(data.public_key);
+                isLoading = false;
+                isLoggedIn.set(true);
+            });
         } catch (error) {
-            alert(error);
+            isLoading = false;
+            alert("Connection Failed!");
         }
-        isLoading = false;
     };
 </script>
 
@@ -84,13 +34,14 @@
             <div class="col login-description">
                 <div class="container-fluid login-description-container">
                     <div class="row login-heading">
-                        Login
+                        Connect
                     </div>
                     <div class="row login-disclaimer">
-                        Make sure you have Metamask browser extension installed to authenticate the app!
+                        Please run your corresponding local python node before using the site.
                     </div>
                     <div class="row login-disclaimer">
-                        Download from&nbsp;<a href="https://metamask.io/" target="_blank">here</a> if you don't have it installed.
+                        Download from&nbsp;<a href="https://metamask.io/" target="_blank">here</a> if you don't have it
+                        running.
                     </div>
                 </div>
             </div>
@@ -101,7 +52,7 @@
                                 class={!isLoading ? "metamask-auth-button hvr-sweep-to-right" : "metamask-auth-button"}
                                 on:click={handleLogin}
                         >
-                            {!isLoading ? "Login with Metamask" : "Loading..."}
+                            {!isLoading ? "Connect" : "Connecting..."}
                         </div>
                     </div>
                 </div>
