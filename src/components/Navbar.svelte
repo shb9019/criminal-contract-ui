@@ -1,12 +1,17 @@
 <script>
-    import { publicAddress, isCreateBountyOpen } from '../stores';
+    import {publicAddress, isCreateBountyOpen, nodePort} from '../stores';
     import {onMount} from "svelte";
 
     let publicAddressLocal;
+    let nodePortLocal;
     let balance = 0;
 
     const unsubscribe = publicAddress.subscribe((value) => {
         publicAddressLocal = value;
+    });
+
+    const nodePortLocalUnsubscribe = nodePort.subscribe((value) => {
+        nodePortLocal = value;
     });
 
     const toggleCreateBounty = () => {
@@ -14,7 +19,7 @@
     };
 
     const fetchUserDetails = () => {
-        fetch('http://localhost:7777/read_self_data', {
+        fetch(`http://localhost:${nodePortLocal}/read_self_data`, {
             mode: 'cors'
         }).then((response) => {
             return response.json();

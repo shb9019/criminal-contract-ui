@@ -20,6 +20,7 @@
     let keyUrl = "";
     let status = null;
     let publicAddressLocal;
+    let canDispute = false;
 
     const unsubscribe = publicAddress.subscribe((value) => {
         publicAddressLocal = value;
@@ -48,7 +49,7 @@
 
     $: if (status === "1") {
         isSolved = true;
-    } else {
+    } else if (status === "0") {
         isInvalid = true;
     }
 
@@ -102,6 +103,15 @@
                 <div class="col-lg-4"></div>
                 <div class="col-lg-4 submit-button" on:click={submitAccept}>
                     <span>{!isSubmittedProof ? 'SUBMIT KEY' : 'ACCEPT KEY'}</span>
+                </div>
+                <div class="col-lg-4"></div>
+            </div>
+        {/if}
+        {#if isInvalid && perpetrator === publicAddressLocal}
+            <div class="row submit-row dispute-row">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4 submit-button" on:click={submitAccept}>
+                    <span>RAISE DISPUTE</span>
                 </div>
                 <div class="col-lg-4"></div>
             </div>
@@ -199,5 +209,9 @@
 
     .solved {
         background-color: red;
+    }
+
+    .dispute-row {
+        padding-top: 0;
     }
 </style>

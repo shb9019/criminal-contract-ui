@@ -1,6 +1,6 @@
 <script>
     import Bounty from "./Bounty.svelte";
-    import {address0, publicAddress} from "../stores";
+    import {address0, nodePort, publicAddress} from "../stores";
     import {getEncryptionName} from '../utils';
     import SubmitProof from "./SubmitKey.svelte";
     import {onMount} from "svelte";
@@ -8,6 +8,7 @@
     let web3;
     let contract;
     let publicAddressLocal;
+    let nodePortLocal;
     let isLoggedInLocal;
     let bounties = [];
     let isLoading = false;
@@ -17,9 +18,13 @@
         publicAddressLocal = value;
     });
 
+    const nodePortUnsubscribe = nodePort.subscribe(value => {
+        nodePortLocal = value;
+    });
+
     const populateBounties = async () => {
         try {
-            fetch('http://localhost:7777/read_contract_data').then((response) => {
+            fetch(`http://localhost:${nodePortLocal}/read_contract_data`).then((response) => {
                 return response.json();
             }).then((data) => {
                 console.log(data);
@@ -61,7 +66,7 @@
         const contractId = bounties[submitKeyIndex].contractor;
         const bid = 2;
 
-        fetch(`http://localhost:7777/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofLink}&encrypted_url=${keyLink}`).then((response) => {
+        fetch(`http://localhost:${nodePort}/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofLink}&encrypted_url=${keyLink}`).then((response) => {
             return response.json();
         }).then((data) => {
             console.log(data.message_data);
@@ -77,7 +82,7 @@
         const publicAddress = publicAddressLocal;
         const contractId = bounties[index].contractor;
 
-        fetch(`http://localhost:7777/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
+        fetch(`http://localhost:${nodePort}/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
             return response.json();
         }).then((data) => {
             console.log(data.message_data);

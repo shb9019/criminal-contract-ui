@@ -1,5 +1,5 @@
 <script>
-    import {contractAbi, contractAddress, isCreateBountyOpen, publicAddress} from '../stores';
+    import {contractAbi, contractAddress, isCreateBountyOpen, nodePort, publicAddress} from '../stores';
     import {onMount} from 'svelte';
     import RadioButton from "./RadioButton.svelte";
     import Web3 from "web3";
@@ -24,9 +24,14 @@
 
     let inputLink = "";
     let reward = 5;
+    let nodePortLocal;
 
-    const unsubscribe = publicAddress.subscribe(value => {
+    const publicAddressUnsubscribe = publicAddress.subscribe(value => {
         publicAddressLocal = value;
+    });
+
+    const nodePortUnsubscribe = nodePort.subscribe(value => {
+        nodePortLocal = value;
     });
 
     let enc_type = 'AES-128';
@@ -95,7 +100,7 @@
 
         console.log(inputLink, reward, publicAddressLocal);
         try {
-            fetch(`http://localhost:7777/create_contract?public_key=${publicAddressLocal}&reward=${reward}&input_url=${inputLink}`, {
+            fetch(`http://localhost:${nodePortLocal}/create_contract?public_key=${publicAddressLocal}&reward=${reward}&input_url=${inputLink}`, {
                 method: 'POST',
             }).then((response) => {
                 return response.json();

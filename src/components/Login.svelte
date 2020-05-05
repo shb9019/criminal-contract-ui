@@ -1,17 +1,19 @@
 <script>
-    import Web3 from 'web3';
-    import {recoverPersonalSignature} from 'eth-sig-util';
-    import {bufferToHex} from 'ethereumjs-util';
-    import {isLoggedIn, publicAddress} from '../stores.js';
+    import {isLoggedIn, publicAddress, nodePort} from '../stores.js';
 
     let web3 = undefined;
     let isLoading = false;
     let publicAddressLocal = undefined;
+    let nodePortLocal;
+
+    const unsubscribe = nodePort.subscribe((value) => {
+        nodePortLocal = value;
+    });
 
     const handleLogin = async () => {
         try {
             isLoading = true;
-            fetch('http://localhost:7777/read_self_data', {
+            fetch(`http://localhost:${nodePortLocal}/read_self_data`, {
                 mode: 'cors'
             }).then((response) => {
                 return response.json();
@@ -26,6 +28,8 @@
             alert("Connection Failed!");
         }
     };
+
+    $: nodePort.set(nodePortLocal);
 </script>
 
 <div class="wrapper">
@@ -37,7 +41,10 @@
                         Connect
                     </div>
                     <div class="row login-disclaimer">
-                        Please run your corresponding local python node before using the site.
+                        Please run your corresponding local python node before using the site. {nodePortLocal}
+                    </div>
+                    <div class="row login-disclaimer">
+                        <input type="text" class="form-control" bind:value={nodePortLocal}/>
                     </div>
                     <div class="row login-disclaimer">
                         Download from&nbsp;<a href="https://metamask.io/" target="_blank">here</a> if you don't have it
