@@ -31,12 +31,13 @@
                 bounties = [];
                 for (let publicKey in data) {
                     if (data.hasOwnProperty(publicKey)) {
+			let perpetratorKey = Object.keys(data[publicKey].proof)[0];
                         bounties.push({
                             encType: "0",
                             cipherText: data[publicKey].input_url,
                             plainText: "",
                             contractor: data[publicKey].public_key,
-                            perpetrator: (!data[publicKey].proof.perp_public_key) ? address0 : data[publicKey].proof.perp_public_key,
+                            perpetrator: perpetratorKey, 
                             amount: data[publicKey].reward,
                             proof: data[publicKey].proof
                         });
@@ -79,7 +80,7 @@
     };
 
     const acceptKey = (index, status = 1) => {
-        const publicAddress = publicAddressLocal;
+        const publicAddress = bounties[index].perpetrator;
         const contractId = bounties[index].contractor;
 
         fetch(`http://localhost:${nodePortLocal}/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
