@@ -1,19 +1,56 @@
 <script>
-    import {isCreateBountyOpen} from '../stores';
+    import {contractAbi, contractAddress, isCreateBountyOpen, publicAddress} from '../stores';
     import {onMount} from 'svelte';
     import RadioButton from "./RadioButton.svelte";
+    import Web3 from "web3";
+    import {getEncryptionCode} from "../utils";
 
     const closeCreateBounty = () => {
         isCreateBountyOpen.set(false);
     };
 
+    let web3;
+    let contract;
+
     // TODO: Make file input a separate component
     let plainTextFileMessage = "No file uploaded";
     let plainTextFileBtn;
+    let plainText = "";
     let cipherTextFileMessage = "No file uploaded";
     let cipherTextFileBtn;
+    let cipherText = "";
+    let publicAddressLocal;
+    let processingPayment = false;
 
-    onMount(() => {
+    const unsubscribe = publicAddress.subscribe(value => {
+        publicAddressLocal = value;
+    });
+
+    let enc_type = 'AES-128';
+
+    const initiateWeb3 = async () => {
+        if (!window.ethereum) {
+            throw new Error('Please install MetaMask first.');
+        }
+
+        if (!web3) {
+            try {
+                await window.ethereum.enable();
+                web3 = new Web3(window.ethereum);
+            } catch (error) {
+                throw new Error('You need to allow MetaMask.');
+            }
+        }
+    };
+
+    const initiateContract = async () => {
+        contract = new web3.eth.Contract(contractAbi, contractAddress, {from: publicAddressLocal});
+    };
+
+    onMount(async () => {
+        await initiateWeb3();
+        await initiateContract();
+
         plainTextFileBtn = document.getElementById("plain-text-file");
         cipherTextFileBtn = document.getElementById("cipher-text-file");
 
@@ -22,6 +59,14 @@
                 plainTextFileMessage = plainTextFileBtn.value.match(
                         /[\/\\]([\w\d\s\.\-\(\)]+)$/
                 )[1];
+                let reader = new FileReader();
+                reader.readAsText(plainTextFileBtn.files[0]);
+                reader.onload = (evt) => {
+                    plainText = evt.target.result;
+                };
+                reader.onerror = (evt) => {
+                    plainText = "Error reading file";
+                }
             } else {
                 plainTextFileMessage = "No file uploaded";
             }
@@ -32,6 +77,14 @@
                 cipherTextFileMessage = cipherTextFileBtn.value.match(
                         /[\/\\]([\w\d\s\.\-\(\)]+)$/
                 )[1];
+                let reader = new FileReader();
+                reader.readAsText(cipherTextFileBtn.files[0]);
+                reader.onload = (evt) => {
+                    cipherText = evt.target.result;
+                };
+                reader.onerror = (evt) => {
+                    cipherText = "Error reading file";
+                }
             } else {
                 cipherTextFileMessage = "No file uploaded";
             }
@@ -47,15 +100,31 @@
         cipherTextFileBtn.click();
     };
 
+    const changeEncType = (value) => {
+        enc_type = value;
+    };
+
     const completeTransaction = () => {
         // TODO: Post transaction formalities
         closeCreateBounty();
     };
 
-    const payBounty = () => {
-        // TODO: Contact the Smart Contract to make the payment
+    const payBounty = async () => {
+        processingPayment = true;
+        try {
+            const response = await contract.methods.createBounty(getEncryptionCode(enc_type), cipherText, plainText, new Date().getTime()).send({
+                from: publicAddressLocal,
+                value: web3.utils.toWei('0.005', 'ether')
+            });
+            alert("Payment completed successfully!");
+        } catch (error) {
+            alert("Payment not successful!");
+        }
+
+        processingPayment = false;
         completeTransaction();
     };
+
 </script>
 
 <div class="wrapper">
@@ -101,11 +170,11 @@
                         <p>Select Encryption Type</p>
                     </div>
                     <div class="row input-field">
-                        <RadioButton name="enc-type" options={["AES-128", "Caesar", "Triple-DES"]}/>
+                        <RadioButton name="enc-type" options={["AES-128", "Caesar", "Triple-DES"]} selected={enc_type} onUpdate={changeEncType}/>
                     </div>
                     <div class="row pay-button">
-                        <div class={"form-submit-button hvr-sweep-to-right"} on:click={payBounty}>
-                            Proceed to Pay
+                        <div class={`form-submit-button ${!processingPayment && 'hvr-sweep-to-right'}`} on:click={payBounty}>
+                            {!processingPayment ? "Proceed to Pay" : "Processing..."}
                         </div>
                     </div>
                 </div>

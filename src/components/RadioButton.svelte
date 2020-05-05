@@ -1,10 +1,10 @@
 <script>
     export let name = "enc-type";
     export let options = ["AES-128", "Caesar", "Triple-DES"];
+    export let selected = "AES-128";
+    export let onUpdate = (value) => {};
 
-    let selected = options[0];
-    $: console.log('Changed selected:', selected)
-
+    $: onUpdate(selected);
 </script>
 
 {#each options as value}
