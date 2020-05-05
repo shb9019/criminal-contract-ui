@@ -3,6 +3,7 @@
     import {onMount} from "svelte";
 
     let publicAddressLocal;
+    let balance = 0;
 
     const unsubscribe = publicAddress.subscribe((value) => {
         publicAddressLocal = value;
@@ -12,14 +13,23 @@
         isCreateBountyOpen.update(val => !val);
     };
 
-    onMount(() => {
+    const fetchUserDetails = () => {
         fetch('http://localhost:7777/read_self_data', {
             mode: 'cors'
         }).then((response) => {
             return response.json();
         }).then((data) => {
+            console.log(data);
             publicAddress.set(data.public_key);
+            balance = data.money;
         });
+    };
+
+    onMount(() => {
+        fetchUserDetails();
+        setInterval(() => {
+            fetchUserDetails();
+        }, 6000);
     });
 </script>
 
@@ -28,11 +38,12 @@
         <div class="col-sm-2 app-name">
             <b>CRIMINAL CONTRACT</b>
         </div>
-        <div class="col-sm-6"></div>
         <div class="col-sm-1 menu-field" on:click={toggleCreateBounty}>
             Submit
         </div>
-        <div class="col-sm-3 address" title={publicAddressLocal}>{$publicAddress.slice(0,20) + "..."}</div>
+        <div class="col-sm-4"></div>
+        <div class="col-sm-3 address" title={publicAddressLocal}>Address: {$publicAddress.slice(0,25) + "..."}</div>
+        <div class="col-sm-2 address">Balance: {balance}</div>
     </div>
 </div>
 
