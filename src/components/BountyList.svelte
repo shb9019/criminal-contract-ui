@@ -82,7 +82,7 @@
         const publicAddress = publicAddressLocal;
         const contractId = bounties[index].contractor;
 
-        fetch(`http://localhost:${nodePort}/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
+        fetch(`http://localhost:${nodePortLocal}/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
             return response.json();
         }).then((data) => {
             console.log(data.message_data);
