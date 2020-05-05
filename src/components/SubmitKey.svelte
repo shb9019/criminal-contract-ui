@@ -2,37 +2,12 @@
     import {onMount} from "svelte";
 
     export let close;
-    export let verifyProof = (proof) => {};
+    export let verifyProof = (proofLink, encryptedLink) => {};
 
     let proofFileMessage = "No file uploaded";
     let proofFileBtn;
-    let proofText = "";
-
-    onMount(async () => {
-        proofFileBtn = document.getElementById("proof-text-file");
-
-        proofFileBtn.addEventListener("change", () => {
-            if (proofFileBtn.value) {
-                proofFileMessage = proofFileBtn.value.match(
-                        /[\/\\]([\w\d\s\.\-\(\)]+)$/
-                )[1];
-                let reader = new FileReader();
-                reader.readAsText(proofFileBtn.files[0]);
-                reader.onload = (evt) => {
-                    proofText = evt.target.result;
-                };
-                reader.onerror = (evt) => {
-                    proofText = "Error reading file";
-                }
-            } else {
-                proofFileMessage = "No file uploaded";
-            }
-        });
-    });
-
-    const handleProofFileUpload = () => {
-        proofFileBtn.click();
-    };
+    let proofLink = "";
+    let encryptedLink = "";
 
 </script>
 
@@ -43,23 +18,22 @@
                 <i class="fa fa-times"></i>
             </span>
         </div>
-        <div class="row submit-key-row">
-            <input type="file" id="proof-text-file" hidden="hidden" accept=".txt" />
-            <button type="button" class="file-upload" on:click={handleProofFileUpload}>
-                <i class="fa fa-upload" aria-hidden="true"></i> <b>Upload Proof</b>
-            </button>
-            <span class="file-name-text">{proofFileMessage}</span>
+        <div class="row input-label submit-key-row">
+            <p>Link to Proof</p>
+        </div>
+        <div class="row input-field submit-key-row">
+            <input type="text" class="form-control" id="input-text-link" bind:value={proofLink}/>
         </div>
         <br/>
-        <div class="row submit-key-row">
-            <input type="file" id="proof-text-file" hidden="hidden" accept=".txt" />
-            <button type="button" class="file-upload" on:click={handleProofFileUpload}>
-                <i class="fa fa-upload" aria-hidden="true"></i> <b>Upload Encrypted Key</b>
-            </button>
-            <span class="file-name-text">{proofFileMessage}</span>
+        <div class="row input-label submit-key-row">
+            <p>Link to Encrypted Key</p>
         </div>
+        <div class="row input-field submit-key-row">
+            <input type="text" class="form-control" id="reward" bind:value={encryptedLink}/>
+        </div>
+        <br/>
         <div class="row pay-button">
-            <div class={`form-submit-button hvr-sweep-to-right'`} on:click={() => verifyProof(proofText)}>
+            <div class={`form-submit-button hvr-sweep-to-right'`} on:click={() => verifyProof(proofLink, encryptedLink)}>
                 Verify
             </div>
         </div>
@@ -142,5 +116,14 @@
         align-items: center;
         justify-content: center;
         padding-top: 40px;
+    }
+
+    .input-label {
+        color: #98aea7;
+    }
+
+    .input-field {
+        padding-left: 30px;
+        padding-right: 30px;
     }
 </style>

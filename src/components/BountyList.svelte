@@ -18,12 +18,12 @@
     });
 
     const populateBounties = async () => {
-        isLoading = true;
         try {
             fetch('http://localhost:7777/read_contract_data').then((response) => {
                 return response.json();
             }).then((data) => {
                 console.log(data);
+                bounties = [];
                 for (let publicKey in data) {
                     if (data.hasOwnProperty(publicKey)) {
                         bounties.push({
@@ -42,7 +42,6 @@
                 console.log(bounties);
                 // Svelte does not update for array methods like push
                 bounties = bounties;
-                isLoading = false;
             });
         } catch (err) {
             alert("Something went wrong!");
@@ -67,14 +66,12 @@
         console.log(submitKeyIndex);
     };
 
-    const verifyProof = (proof) => {
+    const verifyProof = (proofLink, keyLink) => {
         const publicAddress = publicAddressLocal;
         const contractId = bounties[submitKeyIndex].contractor;
         const bid = 2;
-        const proofUrl = '11w67P/aes_decrypt.proof';
-        const validKey = 'D9eYk/exo2';
 
-        fetch(`http://localhost:7777/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofUrl}&encrypted_url=${validKey}`).then((response) => {
+        fetch(`http://localhost:7777/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofLink}&encrypted_url=${keyLink}`).then((response) => {
             return response.json();
         }).then((data) => {
             console.log(data.message_data);
@@ -105,8 +102,10 @@
     };
 
     onMount(() => {
-        bounties = [];
         populateBounties();
+        setInterval(() => {
+            populateBounties();
+        }, 6000);
     })
 
 </script>

@@ -22,6 +22,9 @@
     let publicAddressLocal;
     let processingPayment = false;
 
+    let inputLink = "";
+    let reward = 5;
+
     const unsubscribe = publicAddress.subscribe(value => {
         publicAddressLocal = value;
     });
@@ -90,11 +93,9 @@
     const payBounty = async () => {
         processingPayment = true;
 
-        const publicKey = publicAddressLocal;
-        const reward = 5;
-        const inputUrl = 'T4MTV/aes_decrypt.inputs';
+        console.log(inputLink, reward, publicAddressLocal);
         try {
-            fetch(`http://localhost:7777/create_contract?public_key=${publicAddressLocal}&reward=${reward}&input_url=${inputUrl}`, {
+            fetch(`http://localhost:7777/create_contract?public_key=${publicAddressLocal}&reward=${reward}&input_url=${inputLink}`, {
                 method: 'POST',
             }).then((response) => {
                 return response.json();
@@ -134,21 +135,17 @@
                         </span>
                     </div>
                     <div class="row input-label">
-                        <p>Upload Plain Text</p>
+                        <p>Link to Inputs</p>
                     </div>
                     <div class="row input-field">
-                        <input type="file" id="plain-text-file" hidden="hidden" accept=".txt" />
-                        <button type="button" class="file-upload" on:click={handlePlainTextFileUpload}><b>Upload File</b></button>
-                        <span class="file-name-text">{plainTextFileMessage}</span>
+                        <input type="text" class="form-control" id="input-text-link" bind:value={inputLink}/>
                     </div>
                     <br/>
                     <div class="row input-label">
-                        <p>Upload Cipher Text</p>
+                        <p>Reward Amount</p>
                     </div>
                     <div class="row input-field">
-                        <input type="file" id="cipher-text-file" hidden="hidden" accept=".txt" />
-                        <button type="button" class="file-upload" on:click={handleCipherTextFileUpload}><b>Upload File</b></button>
-                        <span class="file-name-text">{cipherTextFileMessage}</span>
+                        <input type="number" class="form-control" id="reward" bind:value={reward}/>
                     </div>
                     <br/>
                     <div class="row input-label">
