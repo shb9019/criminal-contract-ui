@@ -66,7 +66,7 @@
         const contractId = bounties[submitKeyIndex].contractor;
         const bid = 2;
 
-        fetch(`http://localhost:${nodePort}/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofLink}&encrypted_url=${keyLink}`).then((response) => {
+        fetch(`http://localhost:${nodePortLocal}/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofLink}&encrypted_url=${keyLink}`).then((response) => {
             return response.json();
         }).then((data) => {
             console.log(data.message_data);
