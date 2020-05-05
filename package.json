@@ -20,8 +20,9 @@
   "dependencies": {
     "asn1.js": "^5.3.0",
     "eth-sig-util": "^2.5.3",
+    "ethereumjs-util": "latest",
     "parse-asn1": "^5.1.5",
-    "web3": "^1.2.7",
-    "ethereumjs-util": "latest"
+    "socket.io-client": "^2.3.0",
+    "web3": "^1.2.7"
   }
 }

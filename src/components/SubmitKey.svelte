@@ -34,8 +34,6 @@
         proofFileBtn.click();
     };
 
-    $: console.log(proofText);
-
 </script>
 
 <div class="wrapper">
@@ -49,6 +47,14 @@
             <input type="file" id="proof-text-file" hidden="hidden" accept=".txt" />
             <button type="button" class="file-upload" on:click={handleProofFileUpload}>
                 <i class="fa fa-upload" aria-hidden="true"></i> <b>Upload Proof</b>
+            </button>
+            <span class="file-name-text">{proofFileMessage}</span>
+        </div>
+        <br/>
+        <div class="row submit-key-row">
+            <input type="file" id="proof-text-file" hidden="hidden" accept=".txt" />
+            <button type="button" class="file-upload" on:click={handleProofFileUpload}>
+                <i class="fa fa-upload" aria-hidden="true"></i> <b>Upload Encrypted Key</b>
             </button>
             <span class="file-name-text">{proofFileMessage}</span>
         </div>

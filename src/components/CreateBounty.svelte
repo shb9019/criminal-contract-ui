@@ -28,29 +28,7 @@
 
     let enc_type = 'AES-128';
 
-    const initiateWeb3 = async () => {
-        if (!window.ethereum) {
-            throw new Error('Please install MetaMask first.');
-        }
-
-        if (!web3) {
-            try {
-                await window.ethereum.enable();
-                web3 = new Web3(window.ethereum);
-            } catch (error) {
-                throw new Error('You need to allow MetaMask.');
-            }
-        }
-    };
-
-    const initiateContract = async () => {
-        contract = new web3.eth.Contract(contractAbi, contractAddress, {from: publicAddressLocal});
-    };
-
     onMount(async () => {
-        await initiateWeb3();
-        await initiateContract();
-
         plainTextFileBtn = document.getElementById("plain-text-file");
         cipherTextFileBtn = document.getElementById("cipher-text-file");
 
@@ -111,12 +89,19 @@
 
     const payBounty = async () => {
         processingPayment = true;
+
+        const publicKey = publicAddressLocal;
+        const reward = 5;
+        const inputUrl = 'T4MTV/aes_decrypt.inputs';
         try {
-            const response = await contract.methods.createBounty(getEncryptionCode(enc_type), cipherText, plainText, new Date().getTime()).send({
-                from: publicAddressLocal,
-                value: web3.utils.toWei('0.005', 'ether')
+            fetch(`http://localhost:7777/create_contract?public_key=${publicAddressLocal}&reward=${reward}&input_url=${inputUrl}`, {
+                method: 'POST',
+            }).then((response) => {
+                return response.json();
+            }).then((data) => {
+                console.log(data);
             });
-            alert("Payment completed successfully!");
+            alert("Payment successful!");
         } catch (error) {
             alert("Payment not successful!");
         }

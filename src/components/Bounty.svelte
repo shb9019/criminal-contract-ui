@@ -1,6 +1,6 @@
 <script>
     import { download } from '../utils';
-    import {address0} from "../stores";
+    import {address0, publicAddress} from "../stores";
 
     export let contractor = "0xcafebabecafebabecafebabe";
     export let encType = "AES-128";
@@ -8,41 +8,87 @@
     export let plainText = "";
     export let perpetrator = "";
     export let amount = 0;
+    export let proof = {};
+    export let index = 0;
     export let submit = () => {};
+    export let accept = () => {};
+
+    let isSubmittedProof = false;
+    let isSolved = false;
+    let keyUrl = "";
+    let status = null;
+    let publicAddressLocal;
+
+    const unsubscribe = publicAddress.subscribe((value) => {
+        publicAddressLocal = value;
+    });
+
+    const submitAccept = () => {
+        if (!isSubmittedProof) {
+            submit(index);
+        } else {
+            accept(index);
+        }
+    };
+
+    $: for (let address in proof) {
+        if (proof.hasOwnProperty(address)) {
+            perpetrator = address;
+            keyUrl = proof[address].encrypted_url;
+            status = proof[address].status;
+            console.log(proof[address]);
+        }
+    }
+
+    $: if (status === "1") {
+        isSolved = true;
+    }
+
+    $: isSubmittedProof = keyUrl !== "" && contractor === publicAddressLocal;
+
 </script>
 
 <div class="row bounty-row">
     <div class="col-md-9">
         <div class="row contractor-row">
-            <div class="col-sm-9">
-                <p>Submitted by {contractor}</p>
+            <div class="col-sm-10">
+                {#if isSolved}
+                        <p>Solved by {perpetrator}</p>
+                {:else if !isSubmittedProof}
+                    <p>Submitted by {contractor}</p>
+                {:else if !isSolved}
+                    <p>Proof submitted by {perpetrator}</p>
+                {/if}
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <p>Amount: {amount} ETH</p>
             </div>
         </div>
         <div class="row download-row">
             <div class="col-lg-2"></div>
-            <div class="col-lg-3 button-col" on:click={download('plain_text.txt', plainText)}>
-                <span>Plain Text</span>
-                <i class="fa fa-download download-icon" aria-hidden="true"></i>
+            <div class="col-lg-3 button-col">
+                {#if !isSubmittedProof}
+                    <a class="download-link" href={`https://transfer.sh/${cipherText}`} target="_blank">
+                        <span>Download Inputs</span>
+                        <i class="fa fa-download download-icon" aria-hidden="true"></i>
+                    </a>
+                {:else}
+                    <a class="download-link" href={`https://transfer.sh/${keyUrl}`} target="_blank">
+                        <span>Download Submitted Key</span>
+                        <i class="fa fa-download download-icon" aria-hidden="true"></i>
+                    </a>
+                {/if}
             </div>
             <div class="col-lg-2"></div>
-            <div class="col-lg-3 button-col" on:click={download('cipher_text.txt', cipherText)}>
-                <span>Cipher Text</span>
-                <i class="fa fa-download download-icon" aria-hidden="true"></i>
-            </div>
+            {#if !isSolved}
+                <div class={`col-lg-3 button-col submit-button`} on:click={submitAccept}>
+                    <span>{!isSubmittedProof ? 'SUBMIT KEY' : 'ACCEPT KEY'}</span>
+                </div>
+            {/if}
             <div class="col-lg-2"></div>
-        </div>
-        <div class="row submit-row">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4 button-col submit-button" on:click={submit}>
-                <span>{perpetrator === address0 ? 'SUBMIT KEY' : 'BROKEN!'}</span>
-            </div>
-            <div class="col-lg-4"></div>
         </div>
     </div>
-    <div class="col-md-3 enc-type-col">
+    <div class={`col-md-3 enc-type-col`  + (isSubmittedProof ? ` proof-submitted` : ``) + (isSolved ? ` solved` : ``)}>
         <p>{encType}</p>
     </div>
 </div>
@@ -77,7 +123,6 @@
         align-items: center;
         justify-content: center;
         background-color: #e8bf6a;
-        padding: 10px 0;
     }
 
     .button-col:hover {
@@ -99,6 +144,10 @@
         justify-content: center;
     }
 
+    .proof-submitted {
+        background-color: #0f52ba;
+    }
+
     .submit-row {
         padding-top: 50px;
         padding-bottom: 30px;
@@ -109,9 +158,21 @@
         background-color: #EF6461;
         color: white;
         font-weight: 600;
+        padding: 10px 0;
     }
 
     .submit-button:hover {
         background-color: #ea332f;
+    }
+
+    .download-link {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .solved {
+        background-color: red;
     }
 </style>

@@ -1,9 +1,26 @@
 <script>
     import { publicAddress, isCreateBountyOpen } from '../stores';
+    import {onMount} from "svelte";
+
+    let publicAddressLocal;
+
+    const unsubscribe = publicAddress.subscribe((value) => {
+        publicAddressLocal = value;
+    });
 
     const toggleCreateBounty = () => {
         isCreateBountyOpen.update(val => !val);
-    }
+    };
+
+    onMount(() => {
+        fetch('http://localhost:7777/read_self_data', {
+            mode: 'cors'
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            publicAddress.set(data.public_key);
+        });
+    });
 </script>
 
 <div class="navbar-wrapper">
@@ -15,7 +32,7 @@
         <div class="col-sm-1 menu-field" on:click={toggleCreateBounty}>
             Submit
         </div>
-        <div class="col-sm-3 address">{$publicAddress.slice(0,20) + "..."}</div>
+        <div class="col-sm-3 address" title={publicAddressLocal}>{$publicAddress.slice(0,20) + "..."}</div>
     </div>
 </div>
 

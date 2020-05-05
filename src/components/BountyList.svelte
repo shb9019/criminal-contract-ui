@@ -1,9 +1,9 @@
 <script>
     import Bounty from "./Bounty.svelte";
-    import Web3 from "web3";
-    import {contractAbi, contractAddress, publicAddress, isLoggedIn} from "../stores";
+    import {address0, publicAddress} from "../stores";
     import {getEncryptionName} from '../utils';
     import SubmitProof from "./SubmitKey.svelte";
+    import {onMount} from "svelte";
 
     let web3;
     let contract;
@@ -17,43 +17,36 @@
         publicAddressLocal = value;
     });
 
-    const isLoggedInUnsubscribe = isLoggedIn.subscribe(value => {
-        isLoggedInLocal = value;
-    });
-
-    const initiateWeb3 = async () => {
-        if (!window.ethereum) {
-            throw new Error('Please install MetaMask first.');
-        }
-
-        if (!web3) {
-            try {
-                await window.ethereum.enable();
-                web3 = new Web3(window.ethereum);
-            } catch (error) {
-                throw new Error('You need to allow MetaMask.');
-            }
-        }
-    };
-
-    const initiateContract = async () => {
-        contract = new web3.eth.Contract(contractAbi, contractAddress, {from: publicAddressLocal});
-    };
-
     const populateBounties = async () => {
         isLoading = true;
         try {
-            const bountyCount = await contract.methods.getBountyCount().call();
-            for (let index = 0; index < bountyCount; index++) {
-                const bounty = await contract.methods.getBounty(index).call();
-                bounties.push(bounty);
-            }
+            fetch('http://localhost:7777/read_contract_data').then((response) => {
+                return response.json();
+            }).then((data) => {
+                console.log(data);
+                for (let publicKey in data) {
+                    if (data.hasOwnProperty(publicKey)) {
+                        bounties.push({
+                            encType: "0",
+                            cipherText: data[publicKey].input_url,
+                            plainText: "",
+                            contractor: publicKey,
+                            perpetrator: (!data[publicKey].proof.perp_public_key) ? address0 : data[publicKey].proof.perp_public_key,
+                            amount: data[publicKey].reward,
+                            proof: data[publicKey].proof
+                        });
+                        console.log(publicKey, data[publicKey]);
+                    }
+                }
+
+                console.log(bounties);
+                // Svelte does not update for array methods like push
+                bounties = bounties;
+                isLoading = false;
+            });
         } catch (err) {
             alert("Something went wrong!");
         }
-        // Svelte does not update for array methods like push
-        bounties = bounties;
-        isLoading = false;
     };
 
     const subscribeEvents = async () => {
@@ -75,35 +68,64 @@
     };
 
     const verifyProof = (proof) => {
-        const encType = bounties[submitKeyIndex].encType;
-        const cipherText = bounties[submitKeyIndex].cipherText;
-        const plainText = bounties[submitKeyIndex].plainText;
-        console.log(encType, cipherText, plainText, proof);
-        // TODO: Verify Proof by submitting to others
+        const publicAddress = publicAddressLocal;
+        const contractId = bounties[submitKeyIndex].contractor;
+        const bid = 2;
+        const proofUrl = '11w67P/aes_decrypt.proof';
+        const validKey = 'D9eYk/exo2';
+
+        fetch(`http://localhost:7777/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofUrl}&encrypted_url=${validKey}`).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log(data.message_data);
+            if (!data.message_data.public_key) {
+                alert('Invalid Proof!');
+            } else {
+                alert('Proof Accepted!');
+            }
+        })
     };
 
-    $: if (isLoggedInLocal) {
-        try {
-            initiateWeb3().then(initiateContract).then(subscribeEvents).then(populateBounties);
-        } catch (err) {
-            alert("Something went wrong!");
-        }
-    }
+    const acceptKey = (index) => {
+        const publicAddress = publicAddressLocal;
+        const contractId = bounties[index].contractor;
+        const status = 1;
+
+        fetch(`http://localhost:7777/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log(data.message_data);
+            console.log(data.message_data);
+            if (data.message_data.public_key) {
+                alert('Money has been transferred!');
+            } else {
+                alert('Something went wrong!');
+            }
+        })
+    };
+
+    onMount(() => {
+        bounties = [];
+        populateBounties();
+    })
 
 </script>
 
 {#if isLoading}
-    <p class="loading"> <i class="fa fa-spinner fa-spin fa-fw"></i> Fetching Bounties...</p>
+    <p class="loading"><i class="fa fa-spinner fa-spin fa-fw"></i> Fetching Bounties...</p>
 {/if}
 {#each bounties as bounty, i}
-<Bounty encType={getEncryptionName(bounty.encType)}
-        cipherText={bounty.cipherText}
-        plainText={bounty.plainText}
-        contractor={bounty.contractor}
-        perpetrator={bounty.perpetrator}
-        amount={web3.utils.fromWei(bounty.amount)}
-        submit={() => setSubmitKey(i)}
-/>
+    <Bounty encType={getEncryptionName(bounty.encType)}
+            cipherText={bounty.cipherText}
+            plainText={bounty.plainText}
+            contractor={bounty.contractor}
+            perpetrator={bounty.perpetrator}
+            amount={bounty.amount}
+            submit={setSubmitKey}
+            proof={bounty.proof}
+            index={i}
+            accept={acceptKey}
+    />
 {/each}
 {#if submitKeyIndex !== -1}
     <SubmitProof close={resetSubmitKey} verifyProof={verifyProof}/>

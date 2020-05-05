@@ -1,8 +1,9 @@
 <script>
     import Navbar from './Navbar.svelte';
-    import {isLoggedIn, isCreateBountyOpen} from '../stores';
     import CreateBounty from "./CreateBounty.svelte";
     import BountyList from "./BountyList.svelte";
+    import { isLoggedIn, isCreateBountyOpen } from '../stores';
+
 </script>
 
 <div class={$isLoggedIn ? "wrapper" : "wrapper blur-bg"}>
