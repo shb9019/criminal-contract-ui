@@ -51,13 +51,17 @@
         }
     }
 
+    $: console.log(status);
+
     $: if (status === "1") {
         isSolved = true;
     } else if (status === "0") {
         isInvalid = true;
     }
 
-    $: isSubmittedProof = keyUrl !== "" && contractor === publicAddressLocal;
+    $: isSubmittedProof = keyUrl !== "";
+
+    $: canDispute = isInvalid && perpetrator === publicAddressLocal;
 
 </script>
 
@@ -67,9 +71,11 @@
             <div class="col-sm-10">
                 {#if isSolved}
                     <p>Solved by {perpetrator}</p>
+                {:else if publicAddressLocal !== perpetrator && publicAddressLocal !== contractor}
+                    <p>Submitted by {contractor}</p>
                 {:else if isInvalid && perpetrator === publicAddressLocal}
                     <p>Your proof and key have been marked as invalid</p>
-                {:else if !isSubmittedProof}
+                {:else if isSubmittedProof && contractor === publicAddressLocal}
                     <p>Submitted by {contractor}</p>
                 {:else if !isSolved}
                     <p>Proof submitted by {perpetrator}</p>
@@ -111,7 +117,7 @@
                 <div class="col-lg-4"></div>
             </div>
         {/if}
-        {#if isInvalid && perpetrator === publicAddressLocal}
+        {#if canDispute}
             <div class="row submit-row dispute-row">
                 <div class="col-lg-4"></div>
                 <div class="col-lg-4 submit-button" on:click={dispute}>

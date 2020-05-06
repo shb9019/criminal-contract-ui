@@ -117,11 +117,7 @@
             }
         }
 
-        fetch(`http://localhost:${nodePortLocal}/dispute
-            ?disputer=P
-            &public_key_perp=${perpetrator}
-            &public_key_contract=${contractor}
-            &revealed_key=${revealed_key}`).then((response) => {
+        fetch(`http://localhost:${nodePortLocal}/dispute?disputer=P&public_key_perp=${perpetrator}&public_key_contract=${contractor}&revealed_key=${revealed_key}`).then((response) => {
             return response.json();
         }).then((data) => {
             alert('Dispute raised!');
