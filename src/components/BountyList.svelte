@@ -31,13 +31,16 @@
                 bounties = [];
                 for (let publicKey in data) {
                     if (data.hasOwnProperty(publicKey)) {
-			let perpetratorKey = Object.keys(data[publicKey].proof)[0];
-                        bounties.push({
+                        let perpetratorKey = address0;
+                        if (data[publicKey].proof) {
+			                perpetratorKey = Object.keys(data[publicKey].proof)[0];
+                        }
+			            bounties.push({
                             encType: "0",
                             cipherText: data[publicKey].input_url,
                             plainText: "",
                             contractor: data[publicKey].public_key,
-                            perpetrator: perpetratorKey, 
+                            perpetrator: perpetratorKey ,
                             amount: data[publicKey].reward,
                             proof: data[publicKey].proof
                         });
@@ -76,6 +79,7 @@
             } else {
                 alert('Proof Accepted!');
             }
+            resetSubmitKey();
         })
     };
 
@@ -101,12 +105,36 @@
         acceptKey(index, 0);
     };
 
+    const raiseDispute = (index) => {
+        const perpetrator = bounties[index].perpetrator;
+        const contractor = bounties[index].contractor;
+        const proof = bounties[index].proof;
+        let revealed_key = "";
+
+        for (let address in proof) {
+            if (proof.hasOwnProperty(address)) {
+                revealed_key = proof[address].encrypted_url;
+            }
+        }
+
+        fetch(`http://localhost:${nodePortLocal}/dispute
+            ?disputer=P
+            &public_key_perp=${perpetrator}
+            &public_key_contract=${contractor}
+            &revealed_key=${revealed_key}`).then((response) => {
+            return response.json();
+        }).then((data) => {
+            alert('Dispute raised!');
+            console.log(data);
+        })
+    };
+
     onMount(() => {
         populateBounties();
         setInterval(() => {
             populateBounties();
         }, 6000);
-    })
+    });
 
 </script>
 
@@ -125,6 +153,7 @@
             index={i}
             accept={acceptKey}
             reject={rejectKey}
+            raiseDispute={raiseDispute}
     />
 {/each}
 {#if submitKeyIndex !== -1}

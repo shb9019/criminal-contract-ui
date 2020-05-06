@@ -13,6 +13,7 @@
     export let submit = (index) => {};
     export let accept = (index) => {};
     export let reject = (index) => {};
+    export let raiseDispute = (index) => {};
 
     let isSubmittedProof = false;
     let isSolved = false;
@@ -38,12 +39,15 @@
         reject(index);
     };
 
+    const dispute = () => {
+        raiseDispute(index);
+    };
+
     $: for (let address in proof) {
         if (proof.hasOwnProperty(address)) {
             perpetrator = address;
             keyUrl = proof[address].encrypted_url;
             status = proof[address].status;
-            console.log(proof[address]);
         }
     }
 
@@ -110,7 +114,7 @@
         {#if isInvalid && perpetrator === publicAddressLocal}
             <div class="row submit-row dispute-row">
                 <div class="col-lg-4"></div>
-                <div class="col-lg-4 submit-button" on:click={submitAccept}>
+                <div class="col-lg-4 submit-button" on:click={dispute}>
                     <span>RAISE DISPUTE</span>
                 </div>
                 <div class="col-lg-4"></div>
