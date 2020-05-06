@@ -120,7 +120,7 @@
         <div class="row download-row">
             <div class="col-lg-2"></div>
             <div class="col-lg-3 button-col">
-                {#if !isSubmittedProof}
+                {#if !isSubmittedProof || !(publicAddressLocal === contractor && publicAddressLocal === perpetrator)}
                     <a class="download-link" href={`https://transfer.sh/${cipherText}`} target="_blank">
                         <span>Download Inputs</span>
                         <i class="fa fa-download download-icon" aria-hidden="true"></i>
@@ -133,23 +133,32 @@
                 {/if}
             </div>
             <div class="col-lg-2"></div>
-            {#if !isSolved && isSubmittedProof}
+            {#if !isSolved && isSubmittedProof && publicAddressLocal === contractor}
                 <div class={`col-lg-3 button-col`} on:click={rejectKey}>
                     Reject Key
                 </div>
             {/if}
             <div class="col-lg-2"></div>
         </div>
-        {#if !isSolved}
+        {#if !isSolved && !isSubmittedProof}
             <div class="row submit-row">
                 <div class="col-lg-4"></div>
                 <div class="col-lg-4 submit-button" on:click={submitAccept}>
-                    <span>{!isSubmittedProof ? 'SUBMIT KEY' : 'ACCEPT KEY'}</span>
+                    <span>SUBMIT KEY</span>
                 </div>
                 <div class="col-lg-4"></div>
             </div>
         {/if}
-        {#if canDispute}
+        {#if !isSolved && isSubmittedProof && publicAddressLocal === contractor}
+            <div class="row submit-row">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4 submit-button" on:click={submitAccept}>
+                    <span>ACCEPT KEY</span>
+                </div>
+                <div class="col-lg-4"></div>
+            </div>
+        {/if}
+        {#if canDispute && publicAddressLocal === perpetrator}
             <div class="row submit-row dispute-row">
                 <div class="col-lg-4"></div>
                 <div class="col-lg-4 submit-button" on:click={openDisputeDialog}>
