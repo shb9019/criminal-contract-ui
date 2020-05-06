@@ -132,7 +132,7 @@
     <p class="loading"><i class="fa fa-spinner fa-spin fa-fw"></i> Fetching Bounties...</p>
 {/if}
 {#each bounties as bounty, i}
-    {#if bounty.isOpen}
+    {#if !bounty.isOpen || (bounty.isOpen === 1) || (bounty.isOpen === "1")}
         <Bounty encType={getEncryptionName(bounty.encType)}
                 cipherText={bounty.cipherText}
                 plainText={bounty.plainText}
