@@ -1,6 +1,7 @@
 <script>
-    import { download } from '../utils';
+    import {download} from '../utils';
     import {address0, publicAddress} from "../stores";
+    import DisputeDialog from "./DisputeDialog.svelte";
 
     export let contractor = "0xcafebabecafebabecafebabe";
     export let encType = "AES-128";
@@ -10,10 +11,14 @@
     export let amount = 0;
     export let proof = {};
     export let index = 0;
-    export let submit = (index) => {};
-    export let accept = (index) => {};
-    export let reject = (index) => {};
-    export let raiseDispute = (index) => {};
+    export let submit = (index) => {
+    };
+    export let accept = (index) => {
+    };
+    export let reject = (index) => {
+    };
+    export let raiseDispute = (index) => {
+    };
 
     let isSubmittedProof = false;
     let isSolved = false;
@@ -22,6 +27,7 @@
     let status = null;
     let publicAddressLocal;
     let canDispute = false;
+    let isDisputeDialogOpen = false;
 
     const unsubscribe = publicAddress.subscribe((value) => {
         publicAddressLocal = value;
@@ -39,8 +45,17 @@
         reject(index);
     };
 
-    const dispute = () => {
-        raiseDispute(index);
+    const dispute = (keyUrl) => {
+        raiseDispute(index, keyUrl);
+        closeDisputeDialog();
+    };
+
+    const closeDisputeDialog = () => {
+        isDisputeDialogOpen = false;
+    };
+
+    const openDisputeDialog = () => {
+        isDisputeDialogOpen = true;
     };
 
     $: for (let address in proof) {
@@ -50,8 +65,6 @@
             status = proof[address].status;
         }
     }
-
-    $: console.log(status);
 
     $: if (status === "1") {
         isSolved = true;
@@ -65,20 +78,37 @@
 
 </script>
 
+{#if isDisputeDialogOpen}
+    <DisputeDialog dispute={dispute} close={closeDisputeDialog}/>
+{/if}
 <div class="row bounty-row">
     <div class="col-md-9">
         <div class="row contractor-row">
             <div class="col-sm-10">
-                {#if isSolved}
-                    <p>Solved by {perpetrator}</p>
-                {:else if publicAddressLocal !== perpetrator && publicAddressLocal !== contractor}
-                    <p>Submitted by {contractor}</p>
-                {:else if isInvalid && perpetrator === publicAddressLocal}
-                    <p>Your proof and key have been marked as invalid</p>
-                {:else if isSubmittedProof && contractor === publicAddressLocal}
-                    <p>Submitted by {contractor}</p>
-                {:else if !isSolved}
-                    <p>Proof submitted by {perpetrator}</p>
+                {#if publicAddressLocal === contractor}
+                    {#if isSolved}
+                        <p>Solved by {perpetrator}</p>
+                    {:else if isSubmittedProof}
+                        <p>Proof Submitted by {perpetrator}</p>
+                    {:else}
+                        <p>You have created this contract</p>
+                    {/if}
+                {:else if publicAddressLocal === perpetrator}
+                    {#if isSolved}
+                        <p>Your proof and key were accepted.</p>
+                    {:else if isSubmittedProof && status === "0"}
+                        <p>Your proof/key was marked as invalid</p>
+                    {:else if isSubmittedProof}
+                        <p>You have submitted the proof & key</p>
+                    {:else}
+                        <p>Created by {contractor}</p>
+                    {/if}
+                {:else}
+                    {#if isSolved}
+                        <p>Solved by {perpetrator}</p>
+                    {:else}
+                        <p>Created by {contractor}</p>
+                    {/if}
                 {/if}
             </div>
             <div class="col-sm-2">
@@ -120,7 +150,7 @@
         {#if canDispute}
             <div class="row submit-row dispute-row">
                 <div class="col-lg-4"></div>
-                <div class="col-lg-4 submit-button" on:click={dispute}>
+                <div class="col-lg-4 submit-button" on:click={openDisputeDialog}>
                     <span>RAISE DISPUTE</span>
                 </div>
                 <div class="col-lg-4"></div>

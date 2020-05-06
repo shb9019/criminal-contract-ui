@@ -41,7 +41,7 @@
                         Connect
                     </div>
                     <div class="row login-disclaimer">
-                        Please run your corresponding local python node before using the site. {nodePortLocal}
+                        Please run your corresponding local python node before using the site.
                     </div>
                     <div class="row login-disclaimer">
                         <input type="text" class="form-control" bind:value={nodePortLocal}/>

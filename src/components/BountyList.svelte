@@ -105,24 +105,17 @@
         acceptKey(index, 0);
     };
 
-    const raiseDispute = (index) => {
+    const raiseDispute = (index, keyUrl) => {
         const perpetrator = bounties[index].perpetrator;
         const contractor = bounties[index].contractor;
         const proof = bounties[index].proof;
-        let revealed_key = "";
 
-        for (let address in proof) {
-            if (proof.hasOwnProperty(address)) {
-                revealed_key = proof[address].encrypted_url;
-            }
-        }
-
-        fetch(`http://localhost:${nodePortLocal}/dispute?disputer=P&public_key_perp=${perpetrator}&public_key_contract=${contractor}&revealed_key=${revealed_key}`).then((response) => {
+        fetch(`http://localhost:${nodePortLocal}/dispute?disputer=P&public_key_perp=${perpetrator}&public_key_contract=${contractor}&revealed_key=${keyUrl}`).then((response) => {
             return response.json();
         }).then((data) => {
             alert('Dispute raised!');
             console.log(data);
-        })
+        });
     };
 
     onMount(() => {
