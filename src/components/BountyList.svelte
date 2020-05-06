@@ -33,16 +33,17 @@
                     if (data.hasOwnProperty(publicKey)) {
                         let perpetratorKey = address0;
                         if (data[publicKey].proof) {
-			                perpetratorKey = Object.keys(data[publicKey].proof)[0];
+                            perpetratorKey = Object.keys(data[publicKey].proof)[0];
                         }
-			            bounties.push({
+                        bounties.push({
                             encType: "0",
                             cipherText: data[publicKey].input_url,
                             plainText: "",
                             contractor: data[publicKey].public_key,
-                            perpetrator: perpetratorKey ,
+                            perpetrator: perpetratorKey,
                             amount: data[publicKey].reward,
-                            proof: data[publicKey].proof
+                            proof: data[publicKey].proof,
+                            is_open: data[publicKey].is_open
                         });
                     }
                 }
@@ -73,7 +74,6 @@
         fetch(`http://localhost:${nodePortLocal}/submit_proof?public_key=${publicAddress}&contract_id=${contractId}&bid=${bid}&proof_url=${proofLink}&encrypted_url=${keyLink}`).then((response) => {
             return response.json();
         }).then((data) => {
-            console.log(data.message_data);
             if (!data.message_data.public_key) {
                 alert('Invalid Proof!');
             } else {
@@ -90,8 +90,6 @@
         fetch(`http://localhost:${nodePortLocal}/update_contract_state?public_key=${publicAddress}&contract_id=${contractId}&status=${status}`).then((response) => {
             return response.json();
         }).then((data) => {
-            console.log(data.message_data);
-            console.log(data.message_data);
             if (data.message_data.public_key) {
                 if (status === 1) alert('Money has been transferred!');
                 else alert('The key has been informed as being invalid!');
@@ -113,8 +111,11 @@
         fetch(`http://localhost:${nodePortLocal}/dispute?disputer=P&public_key_perp=${perpetrator}&public_key_contract=${contractor}&revealed_key=${keyUrl}`).then((response) => {
             return response.json();
         }).then((data) => {
-            alert('Dispute raised!');
-            console.log(data);
+            if (data.message_data && data.message_data.disputed_accepted) {
+                alert('You won the dispute!');
+            } else {
+                alert('Dispute failed!');
+            }
         });
     };
 
@@ -131,19 +132,22 @@
     <p class="loading"><i class="fa fa-spinner fa-spin fa-fw"></i> Fetching Bounties...</p>
 {/if}
 {#each bounties as bounty, i}
-    <Bounty encType={getEncryptionName(bounty.encType)}
-            cipherText={bounty.cipherText}
-            plainText={bounty.plainText}
-            contractor={bounty.contractor}
-            perpetrator={bounty.perpetrator}
-            amount={bounty.amount}
-            submit={setSubmitKey}
-            proof={bounty.proof}
-            index={i}
-            accept={acceptKey}
-            reject={rejectKey}
-            raiseDispute={raiseDispute}
-    />
+    {#if bounty.isOpen}
+        <Bounty encType={getEncryptionName(bounty.encType)}
+                cipherText={bounty.cipherText}
+                plainText={bounty.plainText}
+                contractor={bounty.contractor}
+                perpetrator={bounty.perpetrator}
+                amount={bounty.amount}
+                submit={setSubmitKey}
+                proof={bounty.proof}
+                index={i}
+                accept={acceptKey}
+                reject={rejectKey}
+                raiseDispute={raiseDispute}
+                isOpen={bounty.isOpen}
+        />
+    {/if}
 {/each}
 {#if submitKeyIndex !== -1}
     <SubmitProof close={resetSubmitKey} verifyProof={verifyProof}/>

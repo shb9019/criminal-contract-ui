@@ -11,6 +11,8 @@
     export let amount = 0;
     export let proof = {};
     export let index = 0;
+    export let isOpen = false;
+
     export let submit = (index) => {
     };
     export let accept = (index) => {
@@ -66,9 +68,9 @@
         }
     }
 
-    $: if (status === "1") {
+    $: if (status === 1 || status === "1") {
         isSolved = true;
-    } else if (status === "0") {
+    } else if (status === 0 || status === "0") {
         isInvalid = true;
     }
 
